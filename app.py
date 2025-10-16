@@ -1,5 +1,8 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import plotly.express as px
 
 from src.data_io import load_sales, latest_baseline
 from src.demand import estimate_elasticity
@@ -36,6 +39,21 @@ st.subheader("2) Elasticity (price sensitivity)")
 elas = estimate_elasticity(df)
 st.dataframe(elas, use_container_width=True)
 
+# --- Demand Curve Visualization ---
+st.subheader("3) Demand Curve (Price vs Quantity Sold)")
+
+selected_sku = st.selectbox("Select SKU to visualize", df["sku"].unique())
+sku_data = df[df["sku"] == selected_sku]
+
+fig, ax = plt.subplots()
+ax.plot(sku_data["price"], sku_data["units"], marker='o', color='blue')
+ax.set_xlabel("Price")
+ax.set_ylabel("Units Sold")
+ax.set_title(f"Demand Curve for {selected_sku}")
+ax.grid(True)
+st.pyplot(fig)
+
+
 st.subheader("3) Baseline (latest prices & units)")
 base = latest_baseline(df)
 if base.empty:
@@ -62,13 +80,70 @@ if st.button("✨ Solve for best prices"):
         rep["base_units"] = rep["base_units"].round().astype(int)
         st.success("Done. One best price per SKU selected.")
         st.dataframe(rep, use_container_width=True)
+
+
+
+        # --- Profit Curve Visualization ---
+st.subheader("6) Profit Curve (Optimized Range)")
+
+if 'rep' in locals() and not rep.empty:
+    sku = st.selectbox("Select SKU to view profit curve", rep["sku"].unique())
+    sku_row = rep[rep["sku"] == sku].iloc[0]
+
+    base_price = sku_row["base_price"]
+    opt_price = sku_row["opt_price"]
+    base_units = sku_row["base_units"]
+    elasticity = elas.loc[elas["sku"] == sku, "elasticity"].values[0]
+    cost = sku_row["cost"]
+
+    prices = np.linspace(base_price * 0.7, base_price * 1.3, 15)
+    quantities = base_units * (prices / base_price) ** elasticity
+    profits = (prices - cost) * quantities
+
+    fig2, ax2 = plt.subplots()
+    ax2.plot(prices, profits, color='green')
+    ax2.axvline(opt_price, color='red', linestyle='--', label="Optimized Price")
+    ax2.set_xlabel("Price")
+    ax2.set_ylabel("Profit")
+    ax2.set_title(f"Profit Curve for {sku}")
+    ax2.legend()
+    ax2.grid(True)
+    st.pyplot(fig2)
+
         st.download_button(
             "Download price book (CSV)",
             rep.to_csv(index=False),
             file_name="price_book.csv",
             mime="text/csv"
         )
+# --- Baseline vs Optimized Profit (Bar Chart) ---
+st.subheader("7) Baseline vs Optimized Profit Comparison")
+
+rep_plot = rep.copy()
+rep_plot["Base Profit"] = (rep_plot["base_price"] - rep_plot["cost"]) * rep_plot["base_units"]
+rep_plot["Optimized Profit"] = rep_plot["opt_profit"]
+
+plot_data = rep_plot.melt(
+    id_vars=["sku"],
+    value_vars=["Base Profit", "Optimized Profit"],
+    var_name="Type",
+    value_name="Profit"
+)
+
+fig3 = px.bar(
+    plot_data,
+    x="sku",
+    y="Profit",
+    color="Type",
+    barmode="group",
+    title="Baseline vs Optimized Profit per SKU"
+)
+st.plotly_chart(fig3, use_container_width=True)
+
+
+
 
 st.caption("Tip: If you upload your own data, keep columns exactly: date, sku, price, units, cost.")
+
 
 
