@@ -58,6 +58,8 @@ if st.button("✨ Solve for best prices"):
         st.error("No solution found with the current settings. Try widening the price range or lowering min margin.")
     else:
         rep = summarize(base, chosen)
+        rep["opt_qty"] = rep["opt_qty"].round().astype(int)
+        rep["base_units"] = rep["base_units"].round().astype(int)
         st.success("Done. One best price per SKU selected.")
         st.dataframe(rep, use_container_width=True)
         st.download_button(
@@ -68,4 +70,5 @@ if st.button("✨ Solve for best prices"):
         )
 
 st.caption("Tip: If you upload your own data, keep columns exactly: date, sku, price, units, cost.")
+
 
