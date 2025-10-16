@@ -4,6 +4,5 @@ numpy>=1.26
 scikit-learn>=1.4
 pulp>=2.8
 highspy>=1.6.0
-matplotlib==3.8.4
 plotly==5.22.0
 
