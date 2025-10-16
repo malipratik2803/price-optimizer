@@ -110,12 +110,12 @@ if 'rep' in locals() and not rep.empty:
     ax2.grid(True)
     st.pyplot(fig2)
 
-        st.download_button(
-            "Download price book (CSV)",
-            rep.to_csv(index=False),
-            file_name="price_book.csv",
-            mime="text/csv"
-        )
+    st.download_button(
+        "Download price book (CSV)",
+        rep.to_csv(index=False),
+        file_name="price_book.csv",
+        mime="text/csv"
+    )
 # --- Baseline vs Optimized Profit (Bar Chart) ---
 st.subheader("7) Baseline vs Optimized Profit Comparison")
 
@@ -144,6 +144,7 @@ st.plotly_chart(fig3, use_container_width=True)
 
 
 st.caption("Tip: If you upload your own data, keep columns exactly: date, sku, price, units, cost.")
+
 
 
 
