@@ -6,8 +6,8 @@ from src.demand import estimate_elasticity
 from src.optimize import solve_prices
 from src.report import summarize
 
-st.set_page_config(page_title="Price Optimization (simple)", layout="wide")
-st.title("🧮 Price Optimization — simple & reliable")
+st.set_page_config(page_title="AI based Price Optimization", layout="wide")
+st.title("🧮AI Price Optimization")
 
 data_file = st.file_uploader("Upload sales CSV with columns: date, sku, price, units, cost", type=["csv"])
 
@@ -68,3 +68,4 @@ if st.button("✨ Solve for best prices"):
         )
 
 st.caption("Tip: If you upload your own data, keep columns exactly: date, sku, price, units, cost.")
+
