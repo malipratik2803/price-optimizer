@@ -102,30 +102,6 @@ if st.button("✨ Solve for best prices"):
             mime="text/csv"
         )
 
-        # -------------------- Profit Curve (Plotly) --------------------
-        st.subheader("6) Profit Curve (Optimized Range)")
-        sku = st.selectbox("Select SKU to view profit curve", rep["sku"].unique(), key="profit_curve_sku")
-        sku_row = rep[rep["sku"] == sku].iloc[0]
-
-        base_price = float(sku_row["base_price"])
-        opt_price  = float(sku_row["opt_price"])
-        base_units = float(sku_row["base_units"])
-        elasticity = float(elas.loc[elas["sku"] == sku, "elasticity"].values[0])
-        cost       = float(sku_row["cost"])
-
-        prices = np.linspace(base_price * 0.7, base_price * 1.3, 25)
-        quantities = base_units * (prices / base_price) ** elasticity
-        profits = (prices - cost) * quantities
-
-        fig_profit = go.Figure()
-        fig_profit.add_trace(go.Scatter(x=prices, y=profits, mode="lines", name="Profit"))
-        fig_profit.add_vline(
-            x=opt_price, line_dash="dash", line_color="red",
-            annotation_text="Optimized Price", annotation_position="top right"
-        )
-        fig_profit.update_layout(title=f"Profit Curve for {sku}", xaxis_title="Price", yaxis_title="Profit")
-        st.plotly_chart(fig_profit, use_container_width=True)
-
         # -------------------- Baseline vs Optimized Profit (Plotly) --------------------
         st.subheader("7) Baseline vs Optimized Profit Comparison")
         rep_plot = rep.copy()
@@ -146,4 +122,5 @@ if st.button("✨ Solve for best prices"):
         st.plotly_chart(fig_bar, use_container_width=True)
 
 st.caption("Tip: If you upload your own data, keep columns exactly: date, sku, price, units, cost.")
+
 
